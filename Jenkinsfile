@@ -2,55 +2,56 @@ pipeline {
     agent any
 
     environment {
-        // Set virtual environment path (optional)
-        VENV = 'venv'
+        APP_NAME = "filecompressor"
+        IMAGE_NAME = "filecompressor-image"
+        CONTAINER_NAME = "filecompressor-container"
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                echo 'Cloning GitHub repo...'
+                echo "Cloning GitHub repo..."
                 checkout scm
             }
         }
 
         stage('Install Requirements') {
             steps {
-                echo 'Installing dependencies...'
-                sh 'python -m venv venv'
-                sh './venv/bin/pip install --upgrade pip'
-                sh './venv/bin/pip install -r requirements.txt'
-            }
-        }
-
-        stage('Run Tests') {
-            steps {
-                echo 'Testing basic Flask server run...'
-                sh './venv/bin/python -m flask --version'
+                echo "Installing dependencies..."
+                sh '''
+                    python3 -m venv venv
+                    source venv/bin/activate
+                    pip install -r requirements.txt
+                '''
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                echo 'Building Docker image...'
-                sh 'docker build -t filecompressor-app .'
+                echo "Building Docker image..."
+                sh '''
+                    docker build -t $IMAGE_NAME .
+                '''
             }
         }
 
         stage('Deploy (Run Container)') {
             steps {
-                echo 'Running Docker container...'
-                sh 'docker run -d -p 5000:5000 --name filecompressor filecompressor-app'
+                echo "Running Docker container..."
+                sh '''
+                    docker rm -f $CONTAINER_NAME || true
+                    docker run -d --name $CONTAINER_NAME -p 5000:5000 $IMAGE_NAME
+                '''
             }
         }
     }
 
     post {
-        success {
-            echo 'Pipeline ran successfully!'
-        }
         failure {
-            echo 'Pipeline failed.'
+            echo "Pipeline failed."
+        }
+        success {
+            echo "Pipeline executed successfully."
         }
     }
 }
