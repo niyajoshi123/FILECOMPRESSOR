@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        VENV_DIR = 'venv'
-    }
-
     stages {
         stage('Checkout Code') {
             steps {
@@ -13,39 +9,19 @@ pipeline {
             }
         }
 
-        stage('Install System Dependencies') {
-            steps {
-                echo 'Installing system dependencies...'
-                sh '''
-                    apt-get update
-                    apt-get install -y python3-venv python3-dev default-libmysqlclient-dev build-essential pkg-config
-                '''
-            }
-        }
-
-        stage('Install Requirements') {
-            steps {
-                echo 'Installing Python dependencies...'
-                sh '''
-                    python3 -m venv ${VENV_DIR}
-                    . ${VENV_DIR}/bin/activate
-                    pip install --upgrade pip
-                    pip install -r requirements.txt
-                '''
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 echo 'Building Docker image...'
-                sh 'docker build -t filecompressor:latest .'
+                script {
+                    docker.build('filecompressor-app')
+                }
             }
         }
 
-        stage('Deploy (Run Container)') {
+        stage('Run Container') {
             steps {
                 echo 'Running Docker container...'
-                sh 'docker run -d -p 5000:5000 filecompressor:latest'
+                sh 'docker run -d -p 5000:5000 --name filecompressor filecompressor-app'
             }
         }
     }
@@ -53,6 +29,9 @@ pipeline {
     post {
         failure {
             echo 'Pipeline failed.'
+        }
+        success {
+            echo 'Pipeline succeeded.'
         }
     }
 }
