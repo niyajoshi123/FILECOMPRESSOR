@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Downloads</title>
+</head>
+<body>
+    <h2>Downloaded Files</h2>
+    {% if files %}
+        <ul>
+            {% for file in files %}
+                <li>{{ file.filename }} - {{ file.timestamp }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No files downloaded yet.</p>
+    {% endif %}
+    <p><a href="{{ url_for('filepage') }}">Back to Filepage</a></p>
+</body>
+</html>

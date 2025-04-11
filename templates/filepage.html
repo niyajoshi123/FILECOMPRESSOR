@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Compression Page</title>
+</head>
+<body>
+    <h2>Welcome {{ username if username else 'Guest' }}</h2>
+
+    {% if username %}
+        <p><a href="{{ url_for('logout') }}">Logout</a></p>
+        <p><a href="{{ url_for('download_history') }}">View My Downloads</a></p>
+    {% endif %}
+
+    <h3>Choose what you want to compress:</h3>
+    <ul>
+        <li><a href="{{ url_for('compress_pdf_page') }}">Compress PDF</a></li>
+        <li><a href="{{ url_for('compress_png_page') }}">Compress PNG</a></li>
+        <li><a href="{{ url_for('compress_jpg_page') }}">Compress JPG</a></li>
+    </ul>
+</body>
+</html>

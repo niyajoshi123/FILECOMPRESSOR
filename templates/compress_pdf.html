@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Compress PDF</title>
+</head>
+<body>
+    <h2>Upload a PDF to Compress</h2>
+    <form method="POST" action="/upload/pdf" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".pdf" required><br><br>
+        <button type="submit">Compress</button>
+    </form>
+
+    {% if original_size %}
+        <p>Original Size: {{ original_size }} KB</p>
+    {% endif %}
+    {% if compressed_size %}
+        <p>Compressed Size: {{ compressed_size }} KB</p>
+        <a href="{{ download_link }}"><button>Download Compressed PDF</button></a>
+    {% endif %}
+</body>
+</html>

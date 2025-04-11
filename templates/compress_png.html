@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Compress PNG</title>
+</head>
+<body>
+    <h2>Upload a PNG to Compress</h2>
+    <form method="POST" action="/compress/png" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".png" required><br><br>
+
+        <label>Select Compression Level:</label><br>
+        <select name="level">
+            <option value="high">High</option>
+            <option value="medium" selected>Medium</option>
+            <option value="low">Low</option>
+        </select><br><br>
+
+        <button type="submit">Compress</button>
+    </form>
+
+    {% if original_size %}
+        <p>Original Size: {{ original_size }} KB</p>
+    {% endif %}
+    {% if compressed_size %}
+        <p>Compressed Size: {{ compressed_size }} KB</p>
+        <a href="{{ download_link }}"><button>Download Compressed PNG</button></a>
+    {% endif %}
+</body>
+</html>

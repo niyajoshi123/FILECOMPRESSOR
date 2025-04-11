@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Download History</title>
+</head>
+<body>
+    <h2>Your Download History</h2>
+
+    {% if files %}
+        <table border="1">
+            <tr>
+                <th>Filename</th>
+                <th>Filetype</th>
+                <th>Original Size (KB)</th>
+                <th>Compressed Size (KB)</th>
+                <th>Timestamp</th>
+            </tr>
+            {% for file in files %}
+            <tr>
+                <td>{{ file.filename }}</td>
+                <td>{{ file.filetype }}</td>
+                <td>{{ file.original_size }}</td>
+                <td>{{ file.compressed_size }}</td>
+                <td>{{ file.timestamp }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No downloads yet.</p>
+    {% endif %}
+</body>
+</html>
