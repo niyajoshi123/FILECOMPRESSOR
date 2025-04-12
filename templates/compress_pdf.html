@@ -5,8 +5,16 @@
 </head>
 <body>
     <h2>Upload a PDF to Compress</h2>
-    <form method="POST" action="/upload/pdf" enctype="multipart/form-data">
+    <form method="POST" action="/compress/pdf" enctype="multipart/form-data">
         <input type="file" name="file" accept=".pdf" required><br><br>
+
+        <label>Select Compression Level:</label><br>
+        <select name="level">
+            <option value="high">High</option>
+            <option value="medium" selected>Medium</option>
+            <option value="low">Low</option>
+        </select><br><br>
+
         <button type="submit">Compress</button>
     </form>
 

@@ -5,6 +5,7 @@ import os
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from PIL import Image
+import fitz
 
 app = Flask(__name__, template_folder='templates')
 app.secret_key = 'your_secret_key'
@@ -88,7 +89,7 @@ def filepage():
     return render_template('filepage.html', username=username, files=files)
 
 
-@app.route('/compress/pdf')
+@app.route('/compress/pdf', methods=['GET'])
 def compress_pdf_page():
     return render_template('compress_pdf.html')
 
@@ -99,6 +100,51 @@ def compress_png_page():
 @app.route('/compress/jpg', methods=['GET'])
 def compress_jpg_page():
     return render_template('compress_jpg.html')
+
+def compress_pdf_file(input_path, output_path, quality):
+    doc = fitz.open(input_path)
+    doc.save(output_path, garbage=4, deflate=True, clean=True)
+    doc.close()
+
+@app.route('/compress/pdf', methods=['POST'])
+def compress_pdf():
+    file = request.files['file']
+    level = request.form['level']
+    username = session.get('username', 'guest')
+
+    if file:
+        filename = secure_filename(file.filename)
+        original_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(original_path)
+
+        # Set quality level based on user choice
+        quality = 30 if level == 'high' else 50 if level == 'medium' else 70
+
+        # Use PyMuPDF or Ghostscript to compress
+        compressed_filename = f"compressed_{filename}"
+        compressed_path = os.path.join(app.config['UPLOAD_FOLDER'], compressed_filename)
+        compress_pdf_file(original_path, compressed_path, quality)
+
+        original_size = round(os.path.getsize(original_path) / 1024, 2)
+        compressed_size = round(os.path.getsize(compressed_path) / 1024, 2)
+
+        if username != 'guest':
+            cursor = mysql.connection.cursor()
+            cursor.execute("SELECT id FROM users WHERE username = %s", (username,))
+            user = cursor.fetchone()
+            if user:
+                user_id = user[0]
+                cursor.execute("""
+                    INSERT INTO files (user_id, filename, filetype, original_size, compressed_size, timestamp)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                """, (user_id, compressed_filename, 'pdf', original_size, compressed_size, datetime.now()))
+                mysql.connection.commit()
+
+        return render_template('compress_pdf.html',
+                               original_size=original_size,
+                               compressed_size=compressed_size,
+                               download_link=url_for('download_file', filename=compressed_filename))
+
 
 def compress_image(file_path, output_path, quality):
     img = Image.open(file_path)
