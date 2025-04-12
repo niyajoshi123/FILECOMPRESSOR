@@ -1,14 +1,29 @@
 pipeline {
     agent any
     stages {
-        stage('Clone Repo') {
+        stage('Checkout Code') {
             steps {
-                git url: 'https://github.com/niyajoshi123/FILECOMPRESSOR.git', branch: 'main'
+                git branch: 'main',
+                     
+                    url: 'https://github.com/niyajoshi123/FILECOMPRESSOR.git'
             }
         }
-        stage('Run Project') {
+        stage('Build') {
             steps {
-                sh 'ls -la' // or whatever build command
+                echo 'Building project...'
+                // Add build steps here
+            }
+        }
+        stage('Run Tests') {
+            steps {
+                echo 'Running tests...'
+                // Add test execution commands here
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying application...'
+                // Add deployment steps here
             }
         }
     }
