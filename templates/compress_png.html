@@ -2,28 +2,100 @@
 <html>
 <head>
     <title>Compress PNG</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            width: 400px;
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        input[type="file"] {
+            margin-bottom: 20px;
+        }
+
+        select {
+            padding: 10px;
+            width: 100%;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: blue;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: darkblue;
+        }
+
+        .result {
+            margin-top: 20px;
+            color: #333;
+        }
+
+        .download-btn {
+            margin-top: 10px;
+            background-color: green;
+        }
+
+        .download-btn:hover {
+            background-color: darkgreen;
+        }
+    </style>
 </head>
 <body>
-    <h2>Upload a PNG to Compress</h2>
-    <form method="POST" action="/compress/png" enctype="multipart/form-data">
-        <input type="file" name="file" accept=".png" required><br><br>
 
-        <label>Select Compression Level:</label><br>
-        <select name="level">
-            <option value="high">High</option>
-            <option value="medium" selected>Medium</option>
-            <option value="low">Low</option>
-        </select><br><br>
+    <div class="container">
+        <h2>Upload a PNG to Compress</h2>
+        <form method="POST" action="/compress/png" enctype="multipart/form-data">
+            <input type="file" name="file" accept=".png" required><br>
 
-        <button type="submit">Compress</button>
-    </form>
+            <label for="level">Select Compression Level:</label><br>
+            <select name="level" id="level">
+                <option value="high">High</option>
+                <option value="medium" selected>Medium</option>
+                <option value="low">Low</option>
+            </select>
 
-    {% if original_size %}
-        <p>Original Size: {{ original_size }} KB</p>
-    {% endif %}
-    {% if compressed_size %}
-        <p>Compressed Size: {{ compressed_size }} KB</p>
-        <a href="{{ download_link }}"><button>Download Compressed PNG</button></a>
-    {% endif %}
+            <button type="submit">Compress</button>
+        </form>
+
+        <div class="result">
+            {% if original_size %}
+                <p>Original Size: {{ original_size }} KB</p>
+            {% endif %}
+            {% if compressed_size %}
+                <p>Compressed Size: {{ compressed_size }} KB</p>
+                <a href="{{ download_link }}"><button class="download-btn">Download Compressed PNG</button></a>
+            {% endif %}
+        </div>
+    </div>
+
 </body>
 </html>

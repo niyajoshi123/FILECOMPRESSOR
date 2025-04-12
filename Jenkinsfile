@@ -3,7 +3,8 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', 
+                git branch: 'main',
+                    credentialsId: 'journalID', 
                     url: 'https://github.com/niyajoshi123/FILECOMPRESSOR.git'
             }
         }

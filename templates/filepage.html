@@ -2,20 +2,73 @@
 <html>
 <head>
     <title>File Compression Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            margin: auto;
+            width: 350px;
+            box-shadow: 0px 0px 10px 0px gray;
+            border-radius: 10px;
+        }
+
+        h2, h3 {
+            color: #333;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin: 15px 0;
+        }
+
+        a.button-link {
+            display: inline-block;
+            background-color: blue;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        a.button-link:hover {
+            background-color: darkblue;
+        }
+
+        .blue-link {
+            color: blue;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-    <h2>Welcome {{ username if username else 'Guest' }}</h2>
 
-    {% if username %}
-        <p><a href="{{ url_for('logout') }}">Logout</a></p>
-        <p><a href="{{ url_for('download_history') }}">View My Downloads</a></p>
-    {% endif %}
+    <div class="container">
+        <h2>Welcome {{ username if username else 'Guest' }}</h2>
 
-    <h3>Choose what you want to compress:</h3>
-    <ul>
-        <li><a href="{{ url_for('compress_pdf_page') }}">Compress PDF</a></li>
-        <li><a href="{{ url_for('compress_png_page') }}">Compress PNG</a></li>
-        <li><a href="{{ url_for('compress_jpg_page') }}">Compress JPG</a></li>
-    </ul>
+        {% if username %}
+            <p><a href="{{ url_for('logout') }}" class="blue-link">Logout</a></p>
+            <p><a href="{{ url_for('download_history') }}" class="blue-link">View My Downloads</a></p>
+        {% endif %}
+
+        <h3>Choose what you want to compress:</h3>
+        <ul>
+            <li><a href="{{ url_for('compress_pdf_page') }}" class="button-link">Compress PDF</a></li>
+            <li><a href="{{ url_for('compress_png_page') }}" class="button-link">Compress PNG</a></li>
+            <li><a href="{{ url_for('compress_jpg_page') }}" class="button-link">Compress JPG</a></li>
+        </ul>
+    </div>
+
 </body>
 </html>
