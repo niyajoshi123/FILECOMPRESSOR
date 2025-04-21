@@ -13,8 +13,27 @@ pipeline {
         stage('Check Python Installation') {
             steps {
                 sh '''#!/bin/bash
-                    which python3 || echo "Python3 not found"
-                    python3 --version || echo "Could not get Python version"
+                    which python3
+                    python3 --version
+                '''
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh '''#!/bin/bash
+                    # Attempt to install python3-venv (for Ubuntu/Debian)
+                    if command -v apt-get &> /dev/null; then
+                        echo "Using apt-get to install python3-venv"
+                        sudo apt-get update
+                        sudo apt-get install -y python3-venv
+                    # For systems using yum (CentOS/RHEL)
+                    elif command -v yum &> /dev/null; then
+                        echo "Using yum to install python3-venv"
+                        sudo yum install -y python3-venv
+                    else
+                        echo "Could not determine package manager"
+                    fi
                 '''
             }
         }
@@ -22,21 +41,31 @@ pipeline {
         stage('Set Up Python Environment') {
             steps {
                 sh '''#!/bin/bash
-                    # Check if venv directory exists and remove it if it does
+                    # Remove existing venv if any
                     if [ -d "venv" ]; then
                         rm -rf venv
                     fi
                     
                     # Create virtual environment
-                    python3 -m venv venv || echo "Failed to create virtual environment"
+                    echo "Creating virtual environment with python3 -m venv venv"
+                    python3 -m venv venv
                     
-                    # Check if virtual environment was created
+                    # Check if venv was created
                     if [ -f "venv/bin/activate" ]; then
                         echo "Virtual environment created successfully"
                         . venv/bin/activate
                         python --version
-                        pip install --upgrade pip
-                        pip install -r requirements.txt
+                        
+                        # Check if requirements.txt exists
+                        if [ -f "requirements.txt" ]; then
+                            echo "Installing requirements from requirements.txt"
+                            pip install --upgrade pip
+                            pip install -r requirements.txt
+                        else
+                            echo "WARNING: requirements.txt not found"
+                            # Install basic Flask requirements
+                            pip install flask
+                        fi
                     else
                         echo "Virtual environment creation failed"
                         exit 1
@@ -56,7 +85,22 @@ pipeline {
                 sh '''#!/bin/bash
                     if [ -f "venv/bin/activate" ]; then
                         . venv/bin/activate
-                        nohup flask run --host=0.0.0.0 --port=5000 > flask.log 2>&1 &
+                        # Check if app.py exists
+                        if [ -f "app.py" ]; then
+                            echo "Starting Flask app with app.py"
+                            FLASK_APP=app.py nohup flask run --host=0.0.0.0 --port=5000 > flask.log 2>&1 &
+                        else
+                            echo "Looking for other Flask entry points..."
+                            # Find possible Flask app entry points
+                            for file in $(find . -maxdepth 1 -name "*.py"); do
+                                echo "Found Python file: $file"
+                                if grep -q "app = Flask" "$file"; then
+                                    echo "Starting Flask app with $file"
+                                    FLASK_APP=$file nohup flask run --host=0.0.0.0 --port=5000 > flask.log 2>&1 &
+                                    break
+                                fi
+                            done
+                        fi
                         echo $! > flask.pid
                         sleep 5 # Give the app a moment to start
                     else
@@ -71,7 +115,13 @@ pipeline {
         stage('Post-deployment Verification') {
             steps {
                 sh '''#!/bin/bash
-                    curl --fail http://localhost:5000 || (echo "App not reachable" && exit 1)
+                    # Check if app is running
+                    if curl --fail http://localhost:5000; then
+                        echo "App is reachable"
+                    else
+                        echo "App not reachable"
+                        exit 1
+                    fi
                 '''
             }
         }
