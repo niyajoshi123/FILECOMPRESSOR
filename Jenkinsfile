@@ -1,16 +1,12 @@
 pipeline {
     agent any
-
-    environment {
-        FLASK_APP = "app.py"
-        FLASK_ENV = "development"
-    }
-
+    
     stages {
-
         stage('Clone Repository') {
             steps {
-                git url: 'https://github.com/niyajoshi123/FILECOMPRESSOR.git', credentialsId: 'filecompressor'
+                git branch: 'main', // Change 'master' to 'main' here
+                    credentialsId: 'filecompressor',
+                    url: 'https://github.com/niyajoshi123/FILECOMPRESSOR.git'
             }
         }
 
@@ -50,10 +46,7 @@ pipeline {
         }
     }
 
-    post {
-        success {
-            echo '✅ Pipeline succeeded!'
-        }
+      post {
         failure {
             echo '❌ Pipeline failed.'
         }
