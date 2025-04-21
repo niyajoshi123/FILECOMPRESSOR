@@ -10,7 +10,7 @@ pipeline {
 
         stage('Clone Repository') {
             steps {
-                git credentialsId: 'github-token', url: 'https://github.com/niyajoshi123/FILECOMPRESSOR.git'
+                git url: 'https://github.com/niyajoshi123/FILECOMPRESSOR.git', credentialsId: 'filecompressor'
             }
         }
 
