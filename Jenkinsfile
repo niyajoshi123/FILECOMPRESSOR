@@ -1,59 +1,62 @@
 pipeline {
     agent any
 
-    stages {
-        stage('Install Dependencies') {
+    environment {
+        // Add your environment variables here if needed
+        FLASK_APP = "app.py"
+        FLASK_ENV = "development"
+    }
+
+    stage('Clone Repository') {
+    steps {
+        git credentialsId: 'filecompressor', url: 'https://github.com/niyajoshi123/FILECOMPRESSOR.git'
+    }
+}
+
+
+        stage('Set Up Python Environment') {
             steps {
-                script {
-                    // Install required dependencies
-                    sh 'pip install -r requirements.txt'
-                }
+                sh '''
+                    python3 -m venv venv
+                    source venv/bin/activate
+                    pip install --upgrade pip
+                    pip install -r requirements.txt
+                '''
             }
         }
 
-        stage('Run Tests') {
+        stage('Database Setup') {
             steps {
-                script {
-                    // Run your tests here (if you have them)
-                    // Example: sh 'pytest'
-                }
+                echo 'Make sure your database (PostgreSQL/MySQL) is running and configured.'
+                // Optional: You can add db init scripts here
             }
         }
 
-        stage('Build') {
+        stage('Run Flask App') {
             steps {
-                script {
-                    // Any build steps (if needed, such as Flask build commands)
-                    echo "Flask app build steps"
-                }
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                script {
-                    // Deploy to your server (e.g., copy files to the server or run deployment scripts)
-                    echo "Deploying the app"
-                }
+                sh '''
+                    source venv/bin/activate
+                    nohup flask run --host=0.0.0.0 --port=5000 &
+                '''
+                echo 'Flask server is running in the background.'
             }
         }
 
         stage('Post-deployment verification') {
             steps {
-                script {
-                    // Any post-deployment tasks like checking logs, ensuring the app is running, etc.
-                    echo "Verifying deployment"
-                }
+                sh '''
+                    curl --fail http://localhost:5000 || echo "App is not reachable!"
+                '''
             }
         }
     }
 
     post {
         success {
-            echo 'Pipeline succeeded!'
+            echo '✅ File Compression App deployed successfully!'
         }
         failure {
-            echo 'Pipeline failed!'
+            echo '❌ Deployment failed. Please check logs.'
         }
     }
 }
