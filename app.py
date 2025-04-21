@@ -247,5 +247,46 @@ def download_history():
 def download_file(filename):
     return send_file(os.path.join(app.config['UPLOAD_FOLDER'], filename), as_attachment=True)
 
+@app.route('/dashboard')
+def dashboard():
+    username = session.get('username')
+    if not username or username == 'guest':
+        return redirect(url_for('login'))  # or show an access denied page
+
+    cursor = mysql.connection.cursor()
+
+    # Total files compressed by the logged-in user
+    cursor.execute("SELECT id FROM users WHERE username = %s", (username,))
+    user = cursor.fetchone()
+    if not user:
+        return redirect(url_for('login'))
+
+    user_id = user[0]
+
+    cursor.execute("SELECT COUNT(*) FROM files WHERE user_id = %s", (user_id,))
+    total_files = cursor.fetchone()[0]
+
+    cursor.execute("""
+        SELECT AVG(compressed_size / original_size)
+        FROM files WHERE user_id = %s AND original_size > 0
+    """, (user_id,))
+    ratio = cursor.fetchone()[0]
+    avg_ratio = round(ratio * 100, 2) if ratio else 0
+
+    cursor.execute("""
+        SELECT filetype, COUNT(*), SUM(original_size), SUM(compressed_size)
+        FROM files
+        WHERE user_id = %s
+        GROUP BY filetype
+    """, (user_id,))
+    filetype_stats = cursor.fetchall()
+
+    return render_template("dashboard.html",
+                           total_files=total_files,
+                           avg_ratio=avg_ratio,
+                           filetype_stats=filetype_stats)
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,30 +1,43 @@
 pipeline {
     agent any
+
+
     stages {
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
-                git branch: 'main',
-                    credentialsId: 'journalID', 
-                    url: 'https://github.com/niyajoshi123/FILECOMPRESSOR.git'
+                echo 'Checking out code from repository'
+                // git 'https://github.com/Sanamniyas/sample.git'  // Modify with your repo URL
             }
         }
+
         stage('Build') {
             steps {
-                echo 'Building project...'
-                // Add build steps here
+                echo 'Building the project'
+               // sh './gradlew build'  // Modify with your build tool/command (e.g., Maven, Gradle, npm)
             }
         }
-        stage('Run Tests') {
+
+        stage('Test') {
             steps {
-                echo 'Running tests...'
-                // Add test execution commands here
+                echo 'Running tests'
+              //  sh './gradlew test'  // Modify with your test command
             }
         }
+
         stage('Deploy') {
             steps {
-                echo 'Deploying application...'
-                // Add deployment steps here
+                echo 'Deploying to server'
+               // sh "scp -r ${BUILD_DIR}/* ${DEPLOY_SERVER}:/path/to/deploy/directory"  // Modify for your deployment command
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully'
+        }
+        failure {
+            echo 'Pipeline failed'
         }
     }
 }

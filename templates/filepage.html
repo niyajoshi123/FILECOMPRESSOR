@@ -60,6 +60,8 @@
         {% if username %}
             <p><a href="{{ url_for('logout') }}" class="blue-link">Logout</a></p>
             <p><a href="{{ url_for('download_history') }}" class="blue-link">View My Downloads</a></p>
+            <p><a href="{{ url_for('dashboard') }}"><button>View Dashboard</button></a></p>
+
         {% endif %}
 
         <h3>Choose what you want to compress:</h3>

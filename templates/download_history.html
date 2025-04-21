@@ -1,32 +1,90 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Download History</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 80%;
+            max-width: 1000px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #2e52c1;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .no-data {
+            text-align: center;
+            font-size: 18px;
+            color: #888;
+        }
+        .empty-message {
+            font-style: italic;
+        }
+    </style>
 </head>
 <body>
-    <h2>Your Download History</h2>
+    <div class="container">
+        <h2>Your Download History</h2>
 
-    {% if files %}
-        <table border="1">
-            <tr>
-                <th>Filename</th>
-                <th>Filetype</th>
-                <th>Original Size (KB)</th>
-                <th>Compressed Size (KB)</th>
-                <th>Timestamp</th>
-            </tr>
-            {% for file in files %}
-            <tr>
-                <td>{{ file.filename }}</td>
-                <td>{{ file.filetype }}</td>
-                <td>{{ file.original_size }}</td>
-                <td>{{ file.compressed_size }}</td>
-                <td>{{ file.timestamp }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-    {% else %}
-        <p>No downloads yet.</p>
-    {% endif %}
+        {% if files %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Filename</th>
+                        <th>Filetype</th>
+                        <th>Original Size (KB)</th>
+                        <th>Compressed Size (KB)</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for file in files %}
+                    <tr>
+                        <td>{{ file.filename }}</td>
+                        <td>{{ file.filetype }}</td>
+                        <td>{{ file.original_size }}</td>
+                        <td>{{ file.compressed_size }}</td>
+                        <td>{{ file.timestamp }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="no-data">No downloads yet. <span class="empty-message">Start compressing files to track your download history!</span></p>
+        {% endif %}
+    </div>
 </body>
 </html>
