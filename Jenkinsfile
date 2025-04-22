@@ -37,22 +37,15 @@ pipeline {
         
         stage('Deploy') {
             steps {
-                sh '''#!/bin/bash
-                    # Kill any existing Flask processes
-                    pkill -f "python3 -m flask run" || true
-                    
-                    # Find the Flask app file
-                    if [ -f "app.py" ]; then
-                        export FLASK_APP=app.py
-                    else
-                        export FLASK_APP=$(find . -name "*.py" -type f -exec grep -l "Flask" {} \\; | head -1)
-                    fi
-                    
-                    # Run Flask app in background
-                    nohup python3 -m flask run --host=0.0.0.0 --port=5000 > flask.log 2>&1 &
-                    echo $! > flask.pid
-                    echo 'Application deployed successfully'
-                '''
+                echo 'Starting Docker services...'
+                script {
+                    if (isUnix()) {
+                        sh 'docker-compose -p filecompressor up -d'  // Use filecompressor as project name
+                    } else {
+                        bat 'docker-compose -p filecompressor up -d'  // Use filecompressor as project name
+                    }
+                }
+                echo 'Docker container started for filecompressor.'
             }
         }
     }
@@ -65,11 +58,10 @@ pipeline {
             echo '❌ Pipeline failed.'
         }
         always {
+            echo 'Cleaning up...'
             sh '''#!/bin/bash
-                if [ -f flask.pid ]; then
-                    kill $(cat flask.pid) || true
-                    rm flask.pid
-                fi
+                # Clean up any Docker resources
+                docker-compose -p filecompressor down || true
             '''
         }
     }
