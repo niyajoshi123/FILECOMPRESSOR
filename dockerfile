@@ -3,7 +3,7 @@ FROM python:3.9-slim
 
 # Install system dependencies for mysqlclient
 RUN apt-get update && \
-    apt-get install -y gcc default-libmysqlclient-dev libssl-dev python3-dev && \
+    apt-get install -y gcc default-libmysqlclient-dev libssl-dev python3-dev pkg-config && \
     rm -rf /var/lib/apt/lists/*
 
 # Set working directory
@@ -15,9 +15,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the app
 COPY . .
-
-# Set environment variables if needed (optional)
-# ENV FLASK_APP=app.py
 
 # Run the app
 CMD ["python", "app.py"]
